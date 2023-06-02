@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdditionalIngredient {
+  id          Int                               @id @default(autoincrement())
+  name        String
+  image       String
+  description String
+  price       Int
+  products    AdditionalIngredientOnProduct[]
+  orderItems  AdditionalIngredientOnOrderItem[]
+
+  @@map("additionalIngredients")
+}
+
+model Product {
+  id                    Int                             @id @default(autoincrement())
+  name                  String
+  image                 String
+  description           String
+  price                 Int
+  category              Category
+  additionalIngredients AdditionalIngredientOnProduct[]
+  orderItems            OrderItem[]
+
+  @@map("products")
+}
+
+model OrderItem {
+  id                               Int                               @id @default(autoincrement())
+  productQuantity                  Int
+  observation                      String
+  totalOrderItemPrice              Int
+  additionalIngredientsSeletecteds AdditionalIngredientOnOrderItem[]
+  product                          Product                           @relation(fields: [productId], references: [id])
+  productId                        Int
+  order                            Order                             @relation(fields: [orderId], references: [id])
+  orderId                          Int
+
+  @@map("orderItems")
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  clientName      String
+  totalOrderPrice Int
+  status          OrderStatus
+  createdAt       DateTime    @default(now())
+  orderItems      OrderItem[]
+
+  @@map("orders")
+}
+
+model AdditionalIngredientOnProduct {
+  product                Product              @relation(fields: [productId], references: [id])
+  productId              Int
+  additionalIngredient   AdditionalIngredient @relation(fields: [additionalIngredientId], references: [id])
+  additionalIngredientId Int
+
+  @@id([productId, additionalIngredientId])
+}
+
+model AdditionalIngredientOnOrderItem {
+  orderItem              OrderItem            @relation(fields: [orderItemId], references: [id])
+  orderItemId            Int
+  additionalIngredient   AdditionalIngredient @relation(fields: [additionalIngredientId], references: [id])
+  additionalIngredientId Int
+
+  @@id([orderItemId, additionalIngredientId])
+}
+
+enum Category {
+  SANDWICH
+  ACCOMPANIMENTS
+  DRINKS
+  DESSERT
+}
+
+enum OrderStatus {
+  PREPARING
+  READY
+}

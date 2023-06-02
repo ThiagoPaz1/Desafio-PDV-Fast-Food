@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  database:
+    image: postgres
+    container_name: pdv_fast_food_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: fastFood
+    ports:
+      - 5433:5432
